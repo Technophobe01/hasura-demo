@@ -1,0 +1,97 @@
+actions:
+  - name: createRating
+    definition:
+      kind: synchronous
+      handler: https://inventory-api.igraphql.co/api/v2
+      forward_client_headers: true
+      headers:
+        - name: X-Hasura-Request
+          value: "true"
+      request_transform:
+        body:
+          action: transform
+          template: |-
+            {
+              "count": {{ $body.input.count }},
+              "score": {{ $body.input.score }}
+            }
+        method: POST
+        query_params: {}
+        template_engine: Kriti
+        url: '{{$base_url}}/rating/{{$body.input.sku_id}}'
+        version: 2
+    permissions:
+      - role: manager
+    comment: Creates a product rating.
+  - name: deleteRating
+    definition:
+      kind: synchronous
+      handler: https://inventory-api.igraphql.co/api/v2
+      forward_client_headers: true
+      headers:
+        - name: X-Hasura-Request
+          value: "true"
+      request_transform:
+        method: DELETE
+        query_params: {}
+        template_engine: Kriti
+        url: '{{$base_url}}/rating/{{$body.input.sku_id}}'
+        version: 2
+    permissions:
+      - role: manager
+    comment: Deletes a product rating.
+  - name: getRating
+    definition:
+      kind: ""
+      handler: https://inventory-api.igraphql.co/api/v2
+      forward_client_headers: true
+      headers:
+        - name: X-Hasura-Request
+          value: "true"
+      request_transform:
+        method: GET
+        query_params: {}
+        request_headers:
+          add_headers: {}
+          remove_headers:
+            - content-type
+        template_engine: Kriti
+        url: '{{$base_url}}/rating/{{$body.input.sku_id}}'
+        version: 2
+    permissions:
+      - role: manager
+      - role: employee
+      - role: anonymous
+    comment: Retrieves a product rating.
+  - name: updateRating
+    definition:
+      kind: synchronous
+      handler: https://inventory-api.igraphql.co/api/v2
+      forward_client_headers: true
+      headers:
+        - name: X-Hasura-Request
+          value: "true"
+      request_transform:
+        body:
+          action: transform
+          template: |-
+            {
+              "count": {{ $body.input.count }},
+              "score": {{ $body.input.score }}
+            }
+        method: PUT
+        query_params: {}
+        template_engine: Kriti
+        url: '{{$base_url}}/rating/{{$body.input.sku_id}}'
+        version: 2
+    permissions:
+      - role: employee
+      - role: manager
+    comment: Updates a product rating.
+custom_types:
+  enums: []
+  input_objects: []
+  objects:
+    - name: Rating
+    - name: Response
+  scalars: []

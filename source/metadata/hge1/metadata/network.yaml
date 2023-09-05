@@ -1,0 +1,13 @@
+tls_allowlist:
+  - host: hasura.igraphql.co
+    permissions:
+      - self-signed
+    suffix: null
+  - host: inventory-api.igraphql.co
+    permissions:
+      - self-signed
+    suffix: null
+  - host: jaeger.igraphql.co
+    permissions:
+      - self-signed
+    suffix: null

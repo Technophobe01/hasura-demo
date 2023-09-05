@@ -1,0 +1,208 @@
+actions:
+  - name: getAssets
+    definition:
+      kind: ""
+      handler: https://inventory-api.igraphql.co/api/v1
+      forward_client_headers: true
+      headers:
+        - name: X-Hasura-Request
+          value: "true"
+      request_transform:
+        method: GET
+        query_params:
+          asset_id: '{{$body.input?.asset_id}}'
+          limit: '{{$body.input?.limit}}'
+          offset: '{{$body.input?.offset}}'
+          tag: '{{$body.input?.tag}}'
+          url: '{{$body.input?.url}}'
+        request_headers:
+          add_headers: {}
+          remove_headers:
+            - content-type
+        template_engine: Kriti
+        url: '{{$base_url}}/skus/{{$body.input.sku_id}}/assets'
+        version: 2
+      response_transform:
+        body:
+          action: transform
+          template: |-
+            {{ if empty($body?.status) }}
+              {{ range _, item := $body }}
+                {
+                  "asset_id": {{ item?.asset_id }},
+                  "created": {{ item?.created }},
+                  "tag": {{ item?.tag }},
+                  "updated": {{ item?.updated }},
+                  "url": {{ item?.url }}
+                }
+              {{ end }}
+            {{ else }}
+              []
+            {{ end }}
+        template_engine: Kriti
+        version: 2
+    permissions:
+      - role: anonymous
+    comment: Retrieves a product's assets.
+  - name: getDescription
+    definition:
+      kind: ""
+      handler: https://inventory-api.igraphql.co/api/v1
+      forward_client_headers: true
+      headers:
+        - name: X-Hasura-Request
+          value: "true"
+      request_transform:
+        method: GET
+        query_params: {}
+        request_headers:
+          add_headers: {}
+          remove_headers:
+            - content-type
+        template_engine: Kriti
+        url: '{{$base_url}}/skus/{{$body.input.sku_id}}/description'
+        version: 2
+    permissions:
+      - role: anonymous
+    comment: Retrieves a product description.
+  - name: getInventory
+    definition:
+      kind: ""
+      handler: https://inventory-api.igraphql.co/api/v1
+      forward_client_headers: true
+      headers:
+        - name: X-Hasura-Request
+          value: "true"
+      request_transform:
+        method: GET
+        query_params:
+          address: '{{$body.input?.address}}'
+          city: '{{$body.input?.city}}'
+          latitude: '{{$body.input?.latitude}}'
+          limit: '{{$body.input?.limit}}'
+          longitude: '{{$body.input?.longitude}}'
+          name: '{{$body.input?.name}}'
+          offset: '{{$body.input?.offset}}'
+          quantity: '{{$body.input?.quantity}}'
+          state: '{{$body.input?.state}}'
+          store_id: '{{$body.input?.store_id}}'
+          zip_code: '{{$body.input?.zip_code}}'
+        request_headers:
+          add_headers: {}
+          remove_headers:
+            - content-type
+        template_engine: Kriti
+        url: '{{$base_url}}/skus/{{$body.input.sku_id}}/inventory'
+        version: 2
+      response_transform:
+        body:
+          action: transform
+          template: |-
+            {{ if empty($body?.status) }}
+              {{ range _, item := $body}}
+                {
+                  "created": {{item?.created}},
+                  "quantity": {{item?.quantity}},
+                  "store": {
+                    "address": {{item?.store?.address}},
+                    "city": {{item?.store?.city}},
+                    "created": {{item?.store?.created}},
+                    "latitude": {{item?.store?.latitude}},
+                    "longitude": {{item?.store?.longitude}},
+                    "name": {{item?.store?.name}},
+                    "state": {{item?.store?.state}},
+                    "store_id": {{item?.store?.store_id}},
+                    "updated": {{item?.store?.updated}},
+                    "zip_code": {{item?.store?.zip_code}}
+                  },
+                  "updated": {{item?.updated}}
+                }
+              {{end}}
+            {{else}}
+              []
+            {{end}}
+        template_engine: Kriti
+        version: 2
+    permissions:
+      - role: anonymous
+    comment: Retrieves a product's inventory.
+  - name: getPrice
+    definition:
+      kind: ""
+      handler: https://inventory-api.igraphql.co/api/v1
+      forward_client_headers: true
+      headers:
+        - name: X-Hasura-Request
+          value: "true"
+      request_transform:
+        method: GET
+        query_params: {}
+        request_headers:
+          add_headers: {}
+          remove_headers:
+            - content-type
+        template_engine: Kriti
+        url: '{{$base_url}}/skus/{{$body.input.sku_id}}/price'
+        version: 2
+    permissions:
+      - role: anonymous
+    comment: Retrieves a product price.
+  - name: getSkus
+    definition:
+      kind: ""
+      handler: https://inventory-api.igraphql.co/api/v1
+      forward_client_headers: true
+      headers:
+        - name: X-Hasura-Request
+          value: "true"
+      request_transform:
+        method: GET
+        query_params:
+          brand: '{{$body.input?.brand}}'
+          country: '{{$body.input?.country}}'
+          limit: '{{$body.input?.limit}}'
+          name: '{{$body.input?.name}}'
+          offset: '{{$body.input?.offset}}'
+          region: '{{$body.input?.region}}'
+          size: '{{$body.input?.size}}'
+          sku_id: '{{$body.input?.sku_id}}'
+          style: '{{$body.input?.style}}'
+          summary: '{{$body.input?.summary}}'
+          type: '{{$body.input?.type}}'
+          units: '{{$body.input?.units}}'
+        request_headers:
+          add_headers: {}
+          remove_headers:
+            - content-type
+        template_engine: Kriti
+        url: '{{$base_url}}/skus'
+        version: 2
+      response_transform:
+        body:
+          action: transform
+          template: |-
+            {{ if empty($body?.status) }}
+              {{ range _, item := $body }}
+                {
+                  "sku_id": {{ item }}
+                }
+              {{ end }}
+            {{ else }}
+              []
+            {{ end }}
+        template_engine: Kriti
+        version: 2
+    permissions:
+      - role: anonymous
+    comment: Retrieves product SKUs.
+custom_types:
+  enums: []
+  input_objects: []
+  objects:
+    - name: Assets
+    - name: Description
+    - name: Inventory
+    - name: Price
+    - name: Skus
+    - name: Store
+  scalars: []

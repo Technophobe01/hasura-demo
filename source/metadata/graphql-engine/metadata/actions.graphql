@@ -1,0 +1,110 @@
+type Query {
+  getAssets(
+    asset_id: Int
+    limit: Float
+    offset: Float
+    sku_id: Int!
+    tag: String
+    url: String
+  ): [Assets]
+}
+
+type Query {
+  getDescription(
+    sku_id: Int!
+  ): Description
+}
+
+type Query {
+  getInventory(
+    address: String
+    city: String
+    latitude: Float
+    limit: Int
+    longitude: Float
+    name: String
+    offset: Int
+    quantity: Int
+    sku_id: Int!
+    state: String
+    store_id: Int
+    zip_code: Int
+  ): [Inventory]
+}
+
+type Query {
+  getPrice(
+    sku_id: Int!
+  ): Price
+}
+
+type Query {
+  getSkus(
+    brand: String
+    country: String
+    limit: Int
+    name: String
+    offset: Int
+    region: String
+    size: Float
+    sku_id: Int
+    style: String
+    summary: String
+    type: String
+    units: String
+  ): [Skus]
+}
+
+type Assets {
+  asset_id: Int
+  created: String
+  tag: String
+  updated: String
+  url: String
+}
+
+type Description {
+  brand: String
+  country: String
+  created: String
+  name: String
+  region: String
+  size: Float
+  style: String
+  summary: String
+  type: String
+  units: String
+  updated: String
+}
+
+type Inventory {
+  created: String
+  quantity: Int
+  store: Store
+  updated: String
+}
+
+type Price {
+  created: String
+  retail: Float
+  sale: Float
+  updated: String
+}
+
+type Skus {
+  sku_id: Int
+}
+
+type Store {
+  address: String
+  city: String
+  created: String
+  latitude: Float
+  longitude: Float
+  name: String
+  state: String
+  store_id: Int
+  updated: String
+  zip_code: Int
+}
+

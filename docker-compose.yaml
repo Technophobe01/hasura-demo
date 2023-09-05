@@ -1,0 +1,351 @@
+version: "3.9"
+
+services:
+  description:
+    image: igraphql/inventory-microservice:latest
+    container_name: description
+    hostname: description
+    restart: always
+    environment:
+      ACCESS_LOG: "false"
+      BASE_PATH: /api/v2
+      DATABASE_TYPE: postgres
+      ENDPOINT_SKUS: https://skus.igraphql.co/api/v2/skus
+      MICROSERVICE: description
+      POSTGRES_DATABASE: inventory_management
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: pgpassword
+      POSTGRES_PORT: 5432
+      POSTGRES_SCHEMA: public
+      POSTGRES_USERNAME: postgres
+      SERVER_CA: /app/dependencies/ca.pem
+    links:
+      - nginx:skus.igraphql.co
+    networks:
+      - hasura
+    ports:
+      - 443
+  
+  data-connector-agent:
+    image: hasura/graphql-data-connector:v2.32.0
+    container_name: data-connector-agent
+    hostname: data-connector-agent
+    restart: always
+    stop_grace_period: 1s
+    environment:
+      QUARKUS_LOG_LEVEL: ERROR
+      QUARKUS_OPENTELEMETRY_ENABLED: "false"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/api/v1/athena/health"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 5s
+    networks:
+      - hasura
+    ports:
+      - 8081
+  
+  graphql-engine:
+    image: hasura/graphql-engine:v2.32.0.cli-migrations-v3
+    container_name: graphql-engine
+    hostname: graphql-engine
+    restart: always
+    stop_grace_period: 1s
+    environment:
+      HASURA_GRAPHQL_ADMIN_SECRET: myadminsecret
+      HASURA_GRAPHQL_DEV_MODE: "true"
+      HASURA_GRAPHQL_EE_LICENSE_KEY: ${HASURA_GRAPHQL_EE_LICENSE_KEY}
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
+      HASURA_GRAPHQL_ENABLE_REMOTE_SCHEMA_PERMISSIONS: "true"
+      HASURA_GRAPHQL_ENABLED_APIS: config,graphql,metadata,metrics
+      HASURA_GRAPHQL_ENABLED_LOG_TYPES: http-log,query-log,startup,webhook-log,websocket-log
+      HASURA_GRAPHQL_LOG_LEVEL: INFO
+      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:pgpassword@postgres:5432/metadata
+      HASURA_GRAPHQL_METADATA_DEFAULTS: '{"backend_configs":{"dataconnector":{"athena":{"uri":"http://data-connector-agent:8081/api/v1/athena"},"mariadb":{"uri":"http://data-connector-agent:8081/api/v1/mariadb"},"mysql8":{"uri":"http://data-connector-agent:8081/api/v1/mysql"},"oracle":{"uri":"http://data-connector-agent:8081/api/v1/oracle"},"snowflake":{"uri":"http://data-connector-agent:8081/api/v1/snowflake"}}}}'
+      HASURA_GRAPHQL_METRICS_SECRET: myadminsecret
+      HASURA_GRAPHQL_REDIS_URL: "redis://redis:6379"
+      HASURA_GRAPHQL_RATE_LIMIT_REDIS_URL: "redis://redis:6379"
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: anonymous
+      PG_DATABASE_URL: postgres://postgres:pgpassword@postgres:5432/inventory_management
+      REVIEW_DATABASE_URL: postgres://postgres:pgpassword@postgres:5432/review
+    links:
+      - nginx:hasura.igraphql.co
+      - nginx:inventory-api.igraphql.co
+      - jaeger:jaeger.igraphql.co
+    networks:
+      - hasura
+    ports:
+      - 8080
+    volumes:
+      - ./source/metadata/graphql-engine/metadata:/hasura-metadata
+    depends_on:
+      data-connector-agent:
+        condition: service_healthy
+  
+  hge1:
+    image: hasura/graphql-engine:v2.32.0.cli-migrations-v3
+    container_name: hge1
+    hostname: hge1
+    restart: always
+    stop_grace_period: 1s
+    environment:
+      HASURA_GRAPHQL_ADMIN_SECRET: myadminsecret
+      HASURA_GRAPHQL_DEV_MODE: "true"
+      HASURA_GRAPHQL_EE_LICENSE_KEY: ${HASURA_GRAPHQL_EE_LICENSE_KEY}
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
+      HASURA_GRAPHQL_ENABLE_REMOTE_SCHEMA_PERMISSIONS: "true"
+      HASURA_GRAPHQL_ENABLED_APIS: config,graphql,metadata,metrics
+      HASURA_GRAPHQL_ENABLED_LOG_TYPES: http-log,query-log,startup,webhook-log,websocket-log
+      HASURA_GRAPHQL_LOG_LEVEL: INFO
+      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:pgpassword@postgres:5432/metadata_hge1
+      HASURA_GRAPHQL_METRICS_SECRET: myadminsecret
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: anonymous
+    links:
+      - nginx:hasura.igraphql.co
+      - nginx:inventory-api.igraphql.co
+      - jaeger:jaeger.igraphql.co
+    networks:
+      - hasura
+    ports:
+      - 8080
+    volumes:
+      - ./source/metadata/hge1/metadata:/hasura-metadata
+    depends_on:
+      data-connector-agent:
+        condition: service_healthy
+  
+  hge2:
+    image: hasura/graphql-engine:v2.32.0.cli-migrations-v3
+    container_name: hge2
+    hostname: hge2
+    restart: always
+    stop_grace_period: 1s
+    environment:
+      HASURA_GRAPHQL_ADMIN_SECRET: myadminsecret
+      HASURA_GRAPHQL_DEV_MODE: "true"
+      HASURA_GRAPHQL_EE_LICENSE_KEY: ${HASURA_GRAPHQL_EE_LICENSE_KEY}
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
+      HASURA_GRAPHQL_ENABLE_REMOTE_SCHEMA_PERMISSIONS: "true"
+      HASURA_GRAPHQL_ENABLED_APIS: config,graphql,metadata,metrics
+      HASURA_GRAPHQL_ENABLED_LOG_TYPES: http-log,query-log,startup,webhook-log,websocket-log
+      HASURA_GRAPHQL_LOG_LEVEL: INFO
+      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:pgpassword@postgres:5432/metadata_hge2
+      HASURA_GRAPHQL_METRICS_SECRET: myadminsecret
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: anonymous
+    links:
+      - nginx:hasura.igraphql.co
+      - nginx:inventory-api.igraphql.co
+      - jaeger:jaeger.igraphql.co
+    networks:
+      - hasura
+    ports:
+      - 8080
+    volumes:
+      - ./source/metadata/hge2/metadata:/hasura-metadata
+    depends_on:
+      data-connector-agent:
+        condition: service_healthy
+  
+  inventory-api:
+    image: igraphql/inventory-monolith:latest
+    container_name: inventory-api
+    hostname: inventory-api
+    restart: always
+    environment:
+      BASE_PATH: /api/v1
+      DATABASE_TYPE: postgres
+      LOG_SQL: "false"
+      POSTGRES_DATABASE: inventory_management
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: pgpassword
+      POSTGRES_PORT: 5432
+      POSTGRES_SCHEMA: public
+      POSTGRES_SSL: "false"
+      POSTGRES_USERNAME: postgres
+    networks:
+      - hasura
+    ports:
+      - 443
+  
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
+    hostname: jaeger
+    restart: always
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+      COLLECTOR_ZIPKIN_HOST_PORT: 9411
+      JAEGER_DISABLED: "true"
+      QUERY_BASE_PATH: /jaeger
+    networks:
+      - hasura
+    ports:
+      - 4317 # gRPC
+      - 4318 # HTTP
+      - 5775/udp
+      - 5778
+      - 6831/udp
+      - 6832/udp
+      - 9411
+      - 14268
+      - 16686
+  
+  nginx:
+    image: igraphql/nginx:1.25.2
+    container_name: nginx
+    hostname: nginx
+    restart: always
+    networks:
+      - hasura
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./source/nginx/certs:/etc/nginx/certs
+      - ./source/nginx/common.conf:/etc/nginx/conf.d/common.conf
+      - ./source/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./source/nginx/graphql.js:/etc/nginx/js/graphql.js
+      - ./source/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./source/nginx/www:/var/www
+  
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    hostname: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: pgpassword
+    networks:
+      - hasura
+    ports:
+      - 5432:5432
+    volumes:
+      - ./source/init/init.sh:/docker-entrypoint-initdb.d/init.sh
+      - ./source/init/init.sql:/var/tmp/init.sql
+      - postgres:/var/lib/postgresql/data
+  
+  rating:
+    image: igraphql/inventory-microservice:latest
+    container_name: rating
+    hostname: rating
+    restart: always
+    environment:
+      ACCESS_LOG: "false"
+      BASE_PATH: /api/v2
+      DATABASE_TYPE: postgres
+      ENDPOINT_REVIEWS: https://reviews.igraphql.co/api/v2/reviews
+      ENDPOINT_SKUS: https://skus.igraphql.co/api/v2/skus
+      MICROSERVICE: rating
+      POSTGRES_DATABASE: inventory_management
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: pgpassword
+      POSTGRES_PORT: 5432
+      POSTGRES_SCHEMA: public
+      POSTGRES_USERNAME: postgres
+      SERVER_CA: /app/dependencies/ca.pem
+    links:
+      - nginx:reviews.igraphql.co
+      - nginx:skus.igraphql.co
+    networks:
+      - hasura
+    ports:
+      - 443
+  
+  redis:
+    image: redis:latest
+    container_name: redis
+    hostname: redis
+    restart: always
+    networks:
+      - hasura
+    ports:
+      - 6379
+  
+  reviews:
+    image: igraphql/inventory-microservice:latest
+    container_name: reviews
+    hostname: reviews
+    restart: always
+    environment:
+      ACCESS_LOG: "false"
+      BASE_PATH: /api/v2
+      DATABASE_TYPE: postgres
+      ENDPOINT_RATING: https://rating.igraphql.co/api/v2/rating
+      ENDPOINT_SKUS: https://skus.igraphql.co/api/v2/skus
+      MICROSERVICE: reviews
+      POSTGRES_DATABASE: inventory_management
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: pgpassword
+      POSTGRES_PORT: 5432
+      POSTGRES_SCHEMA: public
+      POSTGRES_USERNAME: postgres
+      SERVER_CA: /app/dependencies/ca.pem
+    links:
+      - nginx:rating.igraphql.co
+      - nginx:skus.igraphql.co
+    networks:
+      - hasura
+    ports:
+      - 443
+  
+  skus:
+    image: igraphql/inventory-microservice:latest
+    container_name: skus
+    hostname: skus
+    restart: always
+    environment:
+      ACCESS_LOG: "false"
+      BASE_PATH: /api/v2
+      DATABASE_TYPE: postgres
+      ENDPOINT_ASSETS: https://assets.igraphql.co/api/v2/assets
+      ENDPOINT_DESCRIPTION: https://description.igraphql.co/api/v2/description
+      ENDPOINT_INVENTORY: https://inventory.igraphql.co/api/v2/inventory
+      ENDPOINT_PRICE: https://price.igraphql.co/api/v2/price
+      ENDPOINT_RATING: https://rating.igraphql.co/api/v2/rating
+      ENDPOINT_REVIEWS: https://reviews.igraphql.co/api/v2/reviews
+      MICROSERVICE: skus
+      POSTGRES_DATABASE: inventory_management
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: pgpassword
+      POSTGRES_PORT: 5432
+      POSTGRES_SCHEMA: public
+      POSTGRES_USERNAME: postgres
+      SERVER_CA: /app/dependencies/ca.pem
+    links:
+      - nginx:assets.igraphql.co
+      - nginx:description.igraphql.co
+      - nginx:inventory.igraphql.co
+      - nginx:price.igraphql.co
+      - nginx:rating.igraphql.co
+      - nginx:reviews.igraphql.co
+    networks:
+      - hasura
+    ports:
+      - 8443:443
+  
+  swagger-ui:
+    image: swaggerapi/swagger-ui:latest
+    container_name: swagger-ui
+    hostname: swagger-ui
+    restart: always
+    environment:
+      URLS: "[{url:\"./api/swagger-v1.yaml\",name:\"Monolith\"},{url:\"./api/swagger-v2.yaml\",name:\"Microservice\"}]"
+    networks:
+      - hasura
+    ports:
+      - 8080
+    volumes:
+      - ./source/swagger:/usr/share/nginx/html/api
+
+networks:
+  hasura:
+    name: hasura
+
+volumes:
+  postgres:
+    name: postgres
+  postgres-hge:
+    name: postgres-hge
+  postgres-hge-rest:
+    name: postgres-hge-rest

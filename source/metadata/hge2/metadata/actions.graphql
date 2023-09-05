@@ -1,0 +1,41 @@
+type Mutation {
+  createRating(
+    count: Int!
+    score: Float!
+    sku_id: Int!
+  ): Response
+}
+
+type Mutation {
+  deleteRating(
+    sku_id: Int!
+  ): Response
+}
+
+type Query {
+  getRating(
+    sku_id: Int!
+  ): Rating
+}
+
+type Mutation {
+  updateRating(
+    count: Int!
+    score: Float!
+    sku_id: Int!
+  ): Response
+}
+
+type Rating {
+  count: Int
+  created: String
+  score: Float
+  sku_id: Int
+  updated: String
+}
+
+type Response {
+  message: String
+  status: Int
+}
+

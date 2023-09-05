@@ -1,0 +1,599 @@
+{
+  "resource_version": 31,
+  "metadata": {
+    "version": 3,
+    "sources": [
+      {
+        "name": "inventory_management",
+        "kind": "postgres",
+        "tables": [
+          {
+            "table": {
+              "name": "asset",
+              "schema": "public"
+            },
+            "object_relationships": [
+              {
+                "name": "sku",
+                "using": {
+                  "foreign_key_constraint_on": "sku_id"
+                }
+              }
+            ],
+            "select_permissions": [
+              {
+                "role": "anonymous",
+                "permission": {
+                  "columns": [
+                    "tag",
+                    "url"
+                  ],
+                  "filter": {},
+                  "query_root_fields": [
+                    "select"
+                  ],
+                  "subscription_root_fields": [
+                    "select"
+                  ]
+                },
+                "comment": ""
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "description",
+              "schema": "public"
+            },
+            "object_relationships": [
+              {
+                "name": "sku",
+                "using": {
+                  "foreign_key_constraint_on": "sku_id"
+                }
+              }
+            ],
+            "select_permissions": [
+              {
+                "role": "anonymous",
+                "permission": {
+                  "columns": [
+                    "brand",
+                    "country",
+                    "name",
+                    "region",
+                    "size",
+                    "style",
+                    "summary",
+                    "type",
+                    "units"
+                  ],
+                  "filter": {},
+                  "query_root_fields": [
+                    "select"
+                  ],
+                  "subscription_root_fields": [
+                    "select"
+                  ]
+                },
+                "comment": ""
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "inventory",
+              "schema": "public"
+            },
+            "object_relationships": [
+              {
+                "name": "sku",
+                "using": {
+                  "foreign_key_constraint_on": "sku_id"
+                }
+              },
+              {
+                "name": "store",
+                "using": {
+                  "foreign_key_constraint_on": "store_id"
+                }
+              }
+            ],
+            "select_permissions": [
+              {
+                "role": "anonymous",
+                "permission": {
+                  "columns": [
+                    "quantity",
+                    "store_id"
+                  ],
+                  "filter": {},
+                  "query_root_fields": [
+                    "select"
+                  ],
+                  "subscription_root_fields": [
+                    "select"
+                  ]
+                },
+                "comment": ""
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "price",
+              "schema": "public"
+            },
+            "object_relationships": [
+              {
+                "name": "sku",
+                "using": {
+                  "foreign_key_constraint_on": "sku_id"
+                }
+              }
+            ],
+            "select_permissions": [
+              {
+                "role": "anonymous",
+                "permission": {
+                  "columns": [
+                    "retail",
+                    "sale"
+                  ],
+                  "filter": {},
+                  "query_root_fields": [
+                    "select"
+                  ],
+                  "subscription_root_fields": [
+                    "select"
+                  ]
+                },
+                "comment": ""
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "sku",
+              "schema": "public"
+            },
+            "object_relationships": [
+              {
+                "name": "description",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "sku_id",
+                    "table": {
+                      "name": "description",
+                      "schema": "public"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "price",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "sku_id",
+                    "table": {
+                      "name": "price",
+                      "schema": "public"
+                    }
+                  }
+                }
+              }
+            ],
+            "array_relationships": [
+              {
+                "name": "assets",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "sku_id",
+                    "table": {
+                      "name": "asset",
+                      "schema": "public"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "inventory",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "sku_id",
+                    "table": {
+                      "name": "inventory",
+                      "schema": "public"
+                    }
+                  }
+                }
+              }
+            ],
+            "select_permissions": [
+              {
+                "role": "anonymous",
+                "permission": {
+                  "columns": [
+                    "sku_id"
+                  ],
+                  "filter": {},
+                  "query_root_fields": [
+                    "select"
+                  ],
+                  "subscription_root_fields": [
+                    "select"
+                  ]
+                },
+                "comment": ""
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "store",
+              "schema": "public"
+            },
+            "array_relationships": [
+              {
+                "name": "inventory",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "store_id",
+                    "table": {
+                      "name": "inventory",
+                      "schema": "public"
+                    }
+                  }
+                }
+              }
+            ],
+            "select_permissions": [
+              {
+                "role": "anonymous",
+                "permission": {
+                  "columns": [
+                    "address",
+                    "city",
+                    "name",
+                    "state",
+                    "store_id",
+                    "zip_code"
+                  ],
+                  "filter": {},
+                  "query_root_fields": [
+                    "select"
+                  ],
+                  "subscription_root_fields": [
+                    "select"
+                  ]
+                },
+                "comment": ""
+              }
+            ]
+          }
+        ],
+        "configuration": {
+          "connection_info": {
+            "database_url": {
+              "from_env": "PG_DATABASE_URL"
+            },
+            "isolation_level": "read-committed",
+            "use_prepared_statements": false
+          }
+        }
+      }
+    ],
+    "remote_schemas": [
+      {
+        "name": "Inventory",
+        "definition": {
+          "url": "https://hasura.igraphql.co/hge1/v1/graphql",
+          "timeout_seconds": 60,
+          "customization": {}
+        },
+        "comment": "",
+        "permissions": [
+          {
+            "role": "anonymous",
+            "definition": {
+              "schema": "schema  { query: query_root }\n\ntype Assets { tag: String\n  url: String\n}\n\ntype Description { brand: String\n  country: String\n  name: String\n  region: String\n  size: Float\n  style: String\n  summary: String\n  type: String\n  units: String\n}\n\ntype Inventory { quantity: Int\n  store: Store\n}\n\ntype Price { retail: Float\n  sale: Float\n}\n\ntype Skus { sku_id: Int\n}\n\ntype Store { address: String\n  city: String\n  name: String\n  state: String\n  store_id: Int\n  zip_code: Int\n}\n\ntype query_root { getAssets(asset_id: Int, limit: Float, offset: Float, sku_id: Int!, tag: String, url: String): [Assets]\n  getDescription(sku_id: Int!): Description\n  getInventory(address: String, city: String, latitude: Float, limit: Int, longitude: Float, name: String, offset: Int, quantity: Int, sku_id: Int!, state: String, store_id: Int, zip_code: Int): [Inventory]\n  getPrice(sku_id: Int!): Price\n  getSkus(brand: String, country: String, limit: Int, name: String, offset: Int, region: String, size: Float, sku_id: Int, style: String, summary: String, type: String, units: String): [Skus]\n}"
+            }
+          }
+        ],
+        "remote_relationships": [
+          {
+            "relationships": [
+              {
+                "definition": {
+                  "to_remote_schema": {
+                    "lhs_fields": [
+                      "sku_id"
+                    ],
+                    "remote_field": {
+                      "getAssets": {
+                        "arguments": {
+                          "sku_id": "$sku_id"
+                        }
+                      }
+                    },
+                    "remote_schema": "Inventory"
+                  }
+                },
+                "name": "assets"
+              },
+              {
+                "definition": {
+                  "to_remote_schema": {
+                    "lhs_fields": [
+                      "sku_id"
+                    ],
+                    "remote_field": {
+                      "getDescription": {
+                        "arguments": {
+                          "sku_id": "$sku_id"
+                        }
+                      }
+                    },
+                    "remote_schema": "Inventory"
+                  }
+                },
+                "name": "description"
+              },
+              {
+                "definition": {
+                  "to_remote_schema": {
+                    "lhs_fields": [
+                      "sku_id"
+                    ],
+                    "remote_field": {
+                      "getInventory": {
+                        "arguments": {
+                          "sku_id": "$sku_id"
+                        }
+                      }
+                    },
+                    "remote_schema": "Inventory"
+                  }
+                },
+                "name": "inventory"
+              },
+              {
+                "definition": {
+                  "to_remote_schema": {
+                    "lhs_fields": [
+                      "sku_id"
+                    ],
+                    "remote_field": {
+                      "getPrice": {
+                        "arguments": {
+                          "sku_id": "$sku_id"
+                        }
+                      }
+                    },
+                    "remote_schema": "Inventory"
+                  }
+                },
+                "name": "price"
+              }
+            ],
+            "type_name": "Skus"
+          }
+        ]
+      }
+    ],
+    "custom_types": {
+      "objects": [
+        {
+          "name": "Assets",
+          "fields": [
+            {
+              "name": "asset_id",
+              "type": "Int"
+            },
+            {
+              "name": "created",
+              "type": "String"
+            },
+            {
+              "name": "tag",
+              "type": "String"
+            },
+            {
+              "name": "updated",
+              "type": "String"
+            },
+            {
+              "name": "url",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "Description",
+          "fields": [
+            {
+              "name": "brand",
+              "type": "String"
+            },
+            {
+              "name": "country",
+              "type": "String"
+            },
+            {
+              "name": "created",
+              "type": "String"
+            },
+            {
+              "name": "name",
+              "type": "String"
+            },
+            {
+              "name": "region",
+              "type": "String"
+            },
+            {
+              "name": "size",
+              "type": "Float"
+            },
+            {
+              "name": "style",
+              "type": "String"
+            },
+            {
+              "name": "summary",
+              "type": "String"
+            },
+            {
+              "name": "type",
+              "type": "String"
+            },
+            {
+              "name": "units",
+              "type": "String"
+            },
+            {
+              "name": "updated",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "Inventory",
+          "fields": [
+            {
+              "name": "created",
+              "type": "String"
+            },
+            {
+              "name": "quantity",
+              "type": "Int"
+            },
+            {
+              "name": "store",
+              "type": "Store"
+            },
+            {
+              "name": "updated",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "Price",
+          "fields": [
+            {
+              "name": "created",
+              "type": "String"
+            },
+            {
+              "name": "retail",
+              "type": "Float"
+            },
+            {
+              "name": "sale",
+              "type": "Float"
+            },
+            {
+              "name": "updated",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "Skus",
+          "fields": [
+            {
+              "name": "sku_id",
+              "type": "Int"
+            }
+          ]
+        },
+        {
+          "name": "Store",
+          "fields": [
+            {
+              "name": "address",
+              "type": "String"
+            },
+            {
+              "name": "city",
+              "type": "String"
+            },
+            {
+              "name": "created",
+              "type": "String"
+            },
+            {
+              "name": "latitude",
+              "type": "Float"
+            },
+            {
+              "name": "longitude",
+              "type": "Float"
+            },
+            {
+              "name": "name",
+              "type": "String"
+            },
+            {
+              "name": "state",
+              "type": "String"
+            },
+            {
+              "name": "store_id",
+              "type": "Int"
+            },
+            {
+              "name": "updated",
+              "type": "String"
+            },
+            {
+              "name": "zip_code",
+              "type": "Int"
+            }
+          ]
+        }
+      ]
+    },
+    "network": {
+      "tls_allowlist": [
+        {
+          "host": "hasura.igraphql.co",
+          "permissions": [
+            "self-signed"
+          ],
+          "suffix": null
+        },
+        {
+          "host": "inventory-api.igraphql.co",
+          "permissions": [
+            "self-signed"
+          ],
+          "suffix": null
+        },
+        {
+          "host": "jaeger.igraphql.co",
+          "permissions": [
+            "self-signed"
+          ],
+          "suffix": null
+        }
+      ]
+    },
+    "opentelemetry": {
+      "status": "enabled",
+      "data_types": [
+        "traces"
+      ],
+      "exporter_otlp": {
+        "headers": [],
+        "otlp_traces_endpoint": "http://jaeger.igraphql.co:4318/v1/traces",
+        "protocol": "http/protobuf",
+        "resource_attributes": []
+      },
+      "batch_span_processor": {
+        "max_export_batch_size": 512
+      }
+    }
+  }
+}
